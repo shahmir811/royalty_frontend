@@ -1,0 +1,10 @@
+.top-navbar-div {
+  padding: 0px 20px;
+}
+
+.dropdown-menu[data-bs-popper] {
+  top: 100%;
+  /* left: -53px; */
+  right: 15px;
+  margin-top: 0.125rem;
+}

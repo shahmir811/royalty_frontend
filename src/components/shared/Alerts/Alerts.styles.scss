@@ -1,0 +1,13 @@
+.alert-class{
+  position: relative;
+
+  div {
+    position: absolute;
+    right: 150px;
+  }
+}
+
+.alert-dismissible .btn-close {
+  padding: 0.25rem 0.25rem; 
+  font-size: 12px;
+}

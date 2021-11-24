@@ -1,58 +1,58 @@
-import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
-import './App.css';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { useEffect, lazy, Suspense } from 'react';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
-    </div>
-  );
-}
+import './App.scss';
+import { useAppDispatch } from 'app/hooks';
+import { setUser } from 'store/auth/authSlice';
+
+import Header from './components/shared/Header/Header.component';
+import PrivateRoute from 'components/PrivateRoute/PrivateRoute.component';
+
+import NotFound from 'pages/NotFound/NotFound.page';
+import setAuthToken from 'store/utils/setAuthToken';
+import { Spinner } from 'react-bootstrap';
+
+const LandingPage = lazy(() => import('./pages/Landing/Landing.page'));
+const LoginPage = lazy(() => import('./pages/Login/Login.page'));
+const HomePage = lazy(() => import('pages/Home/Home.page'));
+
+const App = () => {
+	const location = useLocation();
+	const navigate = useNavigate();
+	const dispatch = useAppDispatch();
+
+	useEffect(() => {
+		const checkUserLogin = () => {
+			const loggedInUser = localStorage.getItem('user');
+			const token = localStorage.getItem('token');
+			if (loggedInUser && token) {
+				const foundUser = JSON.parse(loggedInUser);
+				dispatch(setUser(foundUser));
+				navigate(location.pathname);
+				setAuthToken(token);
+			} else {
+				localStorage.removeItem('user');
+				setAuthToken();
+			}
+		};
+
+		checkUserLogin();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	return (
+		<div>
+			<Header />
+			<Suspense fallback={<Spinner animation='border' variant='light' />}>
+				<Routes>
+					<Route path='/' element={<LandingPage />} />
+					<Route path='/login' element={<LoginPage />} />
+					<Route path='/home' element={<PrivateRoute component={HomePage} />} />
+					<Route path='*' element={<NotFound />} />
+				</Routes>
+			</Suspense>
+		</div>
+	);
+};
 
 export default App;
